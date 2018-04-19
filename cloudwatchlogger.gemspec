@@ -14,9 +14,9 @@ Gem::Specification.new do |s|
   s.email             = 'zcs@amvse.com'
   s.homepage          = 'http://github.com/amvse/cloudwatchlogger'
 
-  s.files             = %w{ README.md Gemfile LICENSE cloudwatchlogger.gemspec } + Dir["lib/**/*.rb"]
+  s.files             = %w{ README.md Gemfile LICENSE cloudwatchlogger.gemspec } + Dir[ "lib/**/*.rb" ]
   s.require_paths     = ['lib']
-  s.test_files        = Dir["spec/**/*.rb"]
+  s.test_files        = Dir[ "spec/**/*.rb" ]
 
   s.required_ruby_version     = '>= 1.8.6'
   s.required_rubygems_version = '>= 1.3.6'
