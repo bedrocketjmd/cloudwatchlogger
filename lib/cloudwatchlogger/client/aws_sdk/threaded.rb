@@ -36,9 +36,9 @@ module CloudWatchLogger
       class DeliveryThread < Thread
 
         def initialize(credentials, log_group_name, log_stream_name, options = {} )
-          
+
           @credentials, @log_group_name, @log_stream_name, @options = credentials, log_group_name, log_stream_name, options
-          
+
           options[ :open_timeout ] = options[ :open_timeout ] || 120
           options[ :read_timeout ] = options[ :read_timeout ] || 120
 
@@ -46,23 +46,23 @@ module CloudWatchLogger
           @exiting = false
 
           super do
-            
+
             loop do
-              
+
               if @client.nil?
                 connect! options
               end
 
-              unless @queue.empty?         
+              unless @queue.empty?
 
                 messages = []
-                
-                while !@queue.empty? && 
+
+                while !@queue.empty? &&
                       messages.length < 100 &&
                       !@exiting
-                  messages.unshift( @queue.pop )
-                end 
-                
+                  messages.push( @queue.pop )
+                end
+
                 begin
 
                   log_events = messages.map do | m |
@@ -77,7 +77,7 @@ module CloudWatchLogger
                     log_stream_name: @log_stream_name,
                     log_events: log_events
                   }
-                  
+
                   if token = @sequence_token
                     event[ :sequence_token ] = token
                   end
@@ -92,7 +92,11 @@ module CloudWatchLogger
                   retry
 
                 end
-              
+
+              else
+
+                sleep( 0.1 )
+
               end
 
               break if @exiting
@@ -116,9 +120,9 @@ module CloudWatchLogger
         def deliver( message )
           @queue.push( message )
         end
-        
+
         def connect!( options = {} )
-        
+
           @client = Aws::CloudWatchLogs::Client.new(
             region: @options[ :region ] || 'us-east-1',
             access_key_id: @credentials[ :access_key_id ],
@@ -126,7 +130,7 @@ module CloudWatchLogger
             http_open_timeout: options[ :open_timeout ],
             http_read_timeout: options[ :read_timeout ]
           )
-        
+
           begin
             @client.create_log_stream(
               log_group_name: @log_group_name,
